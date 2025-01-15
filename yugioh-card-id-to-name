@@ -1,0 +1,48 @@
+!pip install requests
+
+import requests
+from concurrent.futures import ThreadPoolExecutor
+
+# URL base da API pública do Yu-Gi-Oh!
+base_url = "https://db.ygoprodeck.com/api/v7/cardinfo.php"
+
+# Lista de IDs das cartas que você deseja consultar
+card_ids = [
+    9822220, 86377375, 23898021, 84211599, 73628505, 48130397, 59160188,
+    35027493, 54974237, 20899496, 89208725, 92428405, 80101899, 58921041,
+    53334471, 99735427, 82732705, 79864860, 88305705, 41209828, 69946549,
+    11765832, 54757758, 13331639, 50954680, 30095833, 38342336, 2857636,
+    8264361, 99011763, 65741787
+]
+
+def get_card_name(card_id):
+    """Consulta a API pública do Yu-Gi-Oh! para obter o nome da carta a partir do CardID."""
+    headers = {"User-Agent": "MyYugiohApp/1.0"}
+    try:
+        response = requests.get(f"{base_url}?id={card_id}", headers=headers, timeout=10)
+        response.raise_for_status()  # Levanta erro para status >= 400
+        card_info = response.json()
+        if 'data' in card_info and len(card_info['data']) > 0:
+            return card_info['data'][0].get("name", "Nome não encontrado")
+        else:
+            return f"Erro: Carta com ID {card_id} não encontrada."
+    except requests.exceptions.RequestException as e:
+        return f"Erro na requisição: {e}"
+    except ValueError:
+        return "Erro ao decodificar a resposta JSON."
+
+def convert_ids_to_names(card_ids):
+    """Converte uma lista de IDs para os nomes das cartas usando a API pública."""
+    card_names = {}
+    with ThreadPoolExecutor() as executor:
+        results = executor.map(get_card_name, card_ids)
+        card_names = dict(zip(card_ids, results))
+    return card_names
+
+if __name__ == "__main__":
+    # Converte os IDs das cartas para nomes
+    card_names = convert_ids_to_names(card_ids)
+
+    # Exibe os resultados
+    for card_id, card_name in card_names.items():
+        print(f"ID: {card_id} - Carta: {card_name}")
