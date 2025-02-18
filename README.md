@@ -5,5 +5,6 @@ aqui colocarei todos os códigos que eu desenvolver durante minha jornada ao mun
 Atualmente este repositório possui 2 projetos:
 
  **Analise de gêneros de filmes da netflix**
+ 
  **Identificador de ID de cartas de yugioh**
 
